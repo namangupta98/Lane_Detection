@@ -38,7 +38,26 @@ def warpImage(pts):
     # print(maxWidth, maxHeight)
     warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
     return warped
+def undistortImage(warped):
+    # Define Camera Matrix
+    mtx =  np.array([[9.037596e+02, 0.000000e+00, 6.957519e+02],
+                     [0.000000e+00, 9.019653e+02, 2.242509e+02],
+                     [0, 0, 1]])
 
+    # Define distortion coefficients
+    dist = np.array([-3.639558e-01, 1.788651e-01, 6.029694e-04, -3.922424e-04, -5.382460e-02])
+
+    # Getting the new optimal camera matrix
+    # img = cv2.imread('image0.jpg')
+    h, w = warped.shape[:2]
+    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,
+                        (w,h))
+
+    # Checking to make sure the new camera materix was properly generated
+    # print(newcameramtx)
+    
+    # Undistorting
+    dst = cv2.undistort(warped, mtx, dist, None, newcameramtx)
 
 if __name__ == '__main__':
 
