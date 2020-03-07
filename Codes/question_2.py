@@ -35,10 +35,13 @@ def warpImage(pts):
     # dst = np.array([[0,0],[199,0],[199,199],[0,199]], dtype="float32")
 
     M = cv2.getPerspectiveTransform(rect, dst)
-    # print(maxWidth, maxHeight)
     warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
     return warped
+
+
+# function to undistort image
 def undistortImage(warped):
+
     # Define Camera Matrix
     mtx =  np.array([[9.037596e+02, 0.000000e+00, 6.957519e+02],
                      [0.000000e+00, 9.019653e+02, 2.242509e+02],
@@ -52,31 +55,31 @@ def undistortImage(warped):
     h, w = warped.shape[:2]
     newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,
                         (w,h))
-
-    # Checking to make sure the new camera materix was properly generated
-    # print(newcameramtx)
     
     # Undistorting
     dst = cv2.undistort(warped, mtx, dist, None, newcameramtx)
+    cv2.imshow('Undistorted Image', dst)
+    cv2.waitKey(0)
+
 
 if __name__ == '__main__':
 
     # read image
-    image = cv2.imread("img.png")
+    image = cv2.imread("data_1/data/0000000220.png")
 
     # call mouse click function
-    points = []
-    cv2.namedWindow("image", 1)
-    cv2.setMouseCallback("image", mouse_click)
+    points = np.float32([[544,310], [741, 314], [879, 507], [241, 503]])
+    # points = []
+    # cv2.namedWindow("image", 1)
+    # cv2.setMouseCallback("image", mouse_click)
 
-    cv2.imshow("image", image )
-    cv2.waitKey(0)
-    if 0xFF == ord('q'):
+    # cv2.imshow("image", image)
+    if cv2.waitKey(0) & 0xFF == ord('q'):
         cv2.destroyAllWindows()
 
     # get warped image
     warped_img = warpImage(points)
-    # print(warped.shape)
     cv2.imshow("warped image", warped_img)
-    # cv2.imshow("image", image )
-    cv2.waitKey(0)
+
+    # undistort image
+    undistortImage(warped_img)
