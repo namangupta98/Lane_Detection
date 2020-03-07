@@ -58,8 +58,9 @@ def undistortImage(warped):
     
     # Undistorting
     dst = cv2.undistort(warped, mtx, dist, None, newcameramtx)
-    cv2.imshow('Undistorted Image', dst)
-    cv2.waitKey(0)
+    # cv2.imshow('Undistorted Image', dst)
+    # cv2.waitKey(0)
+    return dst
 
 
 if __name__ == '__main__':
@@ -68,7 +69,7 @@ if __name__ == '__main__':
     image = cv2.imread("data_1/data/0000000220.png")
 
     # call mouse click function
-    points = np.float32([[544,310], [741, 314], [879, 507], [241, 503]])
+    points = np.float32([[544, 314], [741, 314], [879, 507], [241, 507]])
     # points = []
     # cv2.namedWindow("image", 1)
     # cv2.setMouseCallback("image", mouse_click)
@@ -79,7 +80,21 @@ if __name__ == '__main__':
 
     # get warped image
     warped_img = warpImage(points)
-    cv2.imshow("warped image", warped_img)
+    # cv2.imshow("warped image", warped_img)
 
     # undistort image
-    undistortImage(warped_img)
+    undistort_img = undistortImage(warped_img)
+
+    # denoise image
+    denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
+    cv2.imshow('Denoised Image', denoise_img)
+
+    # extract edges
+    edges = cv2.Canny(denoise_img, 100, 200)
+    cv2.imshow('edges', edges)
+    # cv2.waitKey(0)
+
+    # crop real image
+    crop = image[190:512, 0:1392]
+    cv2.imshow('ROI', crop)
+    cv2.waitKey(0)
