@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-# Equalization of Histogram can only be applied on grayscale images as a result the following function
 # def EqualizeHistogram(frame):
 #     new_img = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
 #     clahe= cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
