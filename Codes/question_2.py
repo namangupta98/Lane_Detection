@@ -69,18 +69,18 @@ if __name__ == '__main__':
     image = cv2.imread("data_1/data/0000000220.png")
 
     # call mouse click function
-    points = np.float32([[544, 314], [741, 314], [879, 507], [241, 507]])
+    points = np.float32([[485, 309], [808, 304], [1114, 480], [80, 473]])
     # points = []
     # cv2.namedWindow("image", 1)
     # cv2.setMouseCallback("image", mouse_click)
 
     # cv2.imshow("image", image)
-    if cv2.waitKey(0) & 0xFF == ord('q'):
-        cv2.destroyAllWindows()
+    # if cv2.waitKey(0) & 0xFF == ord('q'):
+    #     cv2.destroyAllWindows()
 
     # get warped image
     warped_img = warpImage(points)
-    # cv2.imshow("warped image", warped_img)
+    cv2.imshow("warped image", warped_img)
 
     # undistort image
     undistort_img = undistortImage(warped_img)
@@ -96,5 +96,5 @@ if __name__ == '__main__':
 
     # crop real image
     crop = image[190:512, 0:1392]
-    cv2.imshow('ROI', crop)
+    # cv2.imshow('ROI', crop)
     cv2.waitKey(0)
