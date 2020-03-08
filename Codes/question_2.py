@@ -11,7 +11,6 @@ def mouse_click(event, x, y, flag, param):
 
 # function for warping
 def warpImage(pts):
-
     # store points
     tl = pts[0]
     tr = pts[1]
@@ -41,11 +40,10 @@ def warpImage(pts):
 
 # function to undistort image
 def undistortImage(warped):
-
     # Define Camera Matrix
-    mtx =  np.array([[9.037596e+02, 0.000000e+00, 6.957519e+02],
-                     [0.000000e+00, 9.019653e+02, 2.242509e+02],
-                     [0, 0, 1]])
+    mtx = np.array([[9.037596e+02, 0.000000e+00, 6.957519e+02],
+                    [0.000000e+00, 9.019653e+02, 2.242509e+02],
+                    [0, 0, 1]])
 
     # Define distortion coefficients
     dist = np.array([-3.639558e-01, 1.788651e-01, 6.029694e-04, -3.922424e-04, -5.382460e-02])
@@ -53,9 +51,9 @@ def undistortImage(warped):
     # Getting the new optimal camera matrix
     # img = cv2.imread('image0.jpg')
     h, w = warped.shape[:2]
-    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,
-                        (w,h))
-    
+    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1,
+                                                      (w, h))
+
     # Undistorting
     dst = cv2.undistort(warped, mtx, dist, None, newcameramtx)
     # cv2.imshow('Undistorted Image', dst)
@@ -64,7 +62,6 @@ def undistortImage(warped):
 
 
 if __name__ == '__main__':
-
     # read image
     image = cv2.imread("data_1/data/0000000220.png")
 
@@ -80,21 +77,41 @@ if __name__ == '__main__':
 
     # get warped image
     warped_img = warpImage(points)
-    cv2.imshow("warped image", warped_img)
+    gray = cv2.cvtColor(warped_img, cv2.COLOR_BGR2GRAY)
+    cv2.imshow("warped image", gray)
+
+
+    # color seperation using HSV
+    # hsv = cv2.cvtColor(warped_img, cv2.COLOR_BGR2HSV)
+    # lower_white = np.array([0, 0, 255])
+    # higher_white = np.array([255, 255, 255])
+    # mask = cv2.inRange(hsv, lower_white, higher_white)
+    # cv2.imshow('mask', mask)
+
+    # using Histogram
+    hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
+
+    # threshold
+    _, thresh = cv2.threshold(gray,250,255,cv2.THRESH_BINARY)
+    cv2.imshow('lane pixel candidates', thresh)
+
+    # plotting histogram
+    # plot.plot(hist)
+    # plot.show()
 
     # undistort image
-    undistort_img = undistortImage(warped_img)
-
-    # denoise image
-    denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
-    cv2.imshow('Denoised Image', denoise_img)
-
-    # extract edges
-    edges = cv2.Canny(denoise_img, 100, 200)
-    cv2.imshow('edges', edges)
-    # cv2.waitKey(0)
-
-    # crop real image
-    crop = image[190:512, 0:1392]
-    # cv2.imshow('ROI', crop)
+    # undistort_img = undistortImage(warped_img)
+    #
+    # # denoise image
+    # # denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
+    # # cv2.imshow('Denoised Image', denoise_img)
+    #
+    # # extract edges
+    # edges = cv2.Canny(denoise_img, 100, 200)
+    # cv2.imshow('edges', edges)
+    # # cv2.waitKey(0)
+    #
+    # # crop real image
+    # crop = image[190:512, 0:1392]
+    # # cv2.imshow('ROI', crop)
     cv2.waitKey(0)
