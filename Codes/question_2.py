@@ -10,7 +10,7 @@ def mouse_click(event, x, y, flag, param):
 
 
 # function for warping
-def warpImage(pts):
+def warpImage(den_image, pts):
     # store points
     tl = pts[0]
     tr = pts[1]
@@ -34,7 +34,7 @@ def warpImage(pts):
     # dst = np.array([[0,0],[199,0],[199,199],[0,199]], dtype="float32")
 
     M = cv2.getPerspectiveTransform(rect, dst)
-    warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
+    warped = cv2.warpPerspective(den_image, M, (maxWidth, maxHeight))
     return warped
 
 
@@ -70,21 +70,12 @@ if __name__ == '__main__':
     # read image
     image = cv2.imread("data_1/data/0000000220.png")
 
-    # call mouse click function
-    points = np.float32([[485, 309], [808, 304], [1114, 480], [80, 473]])
-    # points = []
-    # cv2.namedWindow("image", 1)
-    # cv2.setMouseCallback("image", mouse_click)
+    # undistort image
+    undistort_img = undistortImage(image)
 
-    # cv2.imshow("image", image)
-    # if cv2.waitKey(0) & 0xFF == ord('q'):
-    #     cv2.destroyAllWindows()
-
-    # get warped image
-    warped_img = warpImage(points)
-    # gray = cv2.cvtColor(warped_img, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("warped image", warped_img)
-
+    # denoise image
+    denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
+    # cv2.imshow('Denoised Image', denoise_img)
 
     # color seperation using HSV
     # hsv = cv2.cvtColor(warped_img, cv2.COLOR_BGR2HSV)
@@ -97,26 +88,36 @@ if __name__ == '__main__':
     # _, thresh = cv2.threshold(warped_img, 250, 255, cv2.THRESH_BINARY)
     # cv2.imshow('lane pixel candidates', thresh)
 
-    # using Histogram
-    # hist = cv2.calcHist([thresh], [0], None, [256], [0, 256])
-    #
-    # # plotting histogram
-    # plot.plot(hist)
-    # plot.show()
-
-    # undistort image
-    undistort_img = undistortImage(warped_img)
-
-    # denoise image
-    denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
-    cv2.imshow('Denoised Image', denoise_img)
-    #
-    # # extract edges
+    # extract edges
     # edges = cv2.Canny(denoise_img, 100, 200)
     # cv2.imshow('edges', edges)
-    # # cv2.waitKey(0)
-    #
-    # # crop real image
-    # crop = image[190:512, 0:1392]
-    # # cv2.imshow('ROI', crop)
+    # cv2.waitKey(0)
+
+    # crop real image
+    crop = denoise_img[160:372, 0:1281]
+    # cv2.imshow('ROI', crop)
+
+    # call mouse click function
+    # points = np.float32([[485, 309], [808, 304], [1114, 480], [80, 473]])
+    # points = np.float32([[481, 235], [717, 236], [864, 351], [249, 341]])
+    points = np.float32([[451, 81], [698, 77], [798, 178], [214, 182]])
+    # points = []
+    # cv2.namedWindow("image", 1)
+    # cv2.setMouseCallback("image", mouse_click)
+
+    # cv2.imshow("image", crop)
+    # if cv2.waitKey(0) & 0xFF == ord('q'):
+    #     cv2.destroyAllWindows()
+
+    # get warped image
+    warped_img = warpImage(crop, points)
+    cv2.imshow("warped image", warped_img)
+
+    # using Histogram
+    hist = cv2.calcHist([warped_img], [0], None, [256], [0, 256])
+
+    # plotting histogram
+    plot.plot(hist)
+    plot.show()
+
     cv2.waitKey(0)
