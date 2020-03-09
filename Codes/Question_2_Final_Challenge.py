@@ -68,7 +68,7 @@ def undistortImage(warped):
 
 if __name__ == '__main__':
     # read image
-    cap = cv2.VideoCapture("data_2/challenge_video.mp4")
+    cap = cv2.VideoCapture("Codes/data_2/challenge_video.mp4")
     ctr = 0
 
     while True:
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
         # call mouse click function
         # points = np.float32([[530, 522], [793, 514], [951, 613], [347, 625]])
-        points = np.float32([[470, 115], [864, 119], [1098, 216], [285, 206]])
+        points = np.float32([[463, 115], [860, 119], [1098, 216], [285, 206]])
         # points = []
 
         # for mouse click to get four points
@@ -126,12 +126,23 @@ if __name__ == '__main__':
         # cv2.imshow('lane pixel candidates', thresh)
         # cv2.waitKey(0)
 
-        # color seperation using HSV
-        # hsv = cv2.cvtColor(denoise_img, cv2.COLOR_BGR2HSV)
-        # lower_white = np.array([0, 0, 255])
-        # higher_white = np.array([255, 255, 255])
-        # mask = cv2.inRange(hsv, lower_white, higher_white)
-        # cv2.imshow('mask', mask)
+        # yellow color separation using HSV
+        hsv = cv2.cvtColor(warped_img, cv2.COLOR_BGR2HSV)
+        lower_yellow = np.array([0, 52, 127])
+        higher_yellow = np.array([26, 156, 255])
+        yellow_mask = cv2.inRange(hsv, lower_yellow, higher_yellow)
+        # cv2.imshow('yellow mask', yellow_mask)
+
+        # white color separation using HSV
+        hsv = cv2.cvtColor(warped_img, cv2.COLOR_BGR2HSV)
+        lower_white = np.array([0, 0, 183])
+        higher_white = np.array([255, 255, 255])
+        white_mask = cv2.inRange(hsv, lower_white, higher_white)
+        # cv2.imshow('white mask', white_mask)
+
+        # final mask
+        mask = cv2.add(yellow_mask, white_mask)
+        cv2.imshow('mask', mask)
 
         # ctr += 1
         # print(ctr)
