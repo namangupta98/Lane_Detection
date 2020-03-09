@@ -77,13 +77,6 @@ if __name__ == '__main__':
     denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
     # cv2.imshow('Denoised Image', denoise_img)
 
-    # color seperation using HSV
-    # hsv = cv2.cvtColor(warped_img, cv2.COLOR_BGR2HSV)
-    # lower_white = np.array([0, 0, 255])
-    # higher_white = np.array([255, 255, 255])
-    # mask = cv2.inRange(hsv, lower_white, higher_white)
-    # cv2.imshow('mask', mask)
-
     # threshold
     # _, thresh = cv2.threshold(warped_img, 250, 255, cv2.THRESH_BINARY)
     # cv2.imshow('lane pixel candidates', thresh)
@@ -114,10 +107,17 @@ if __name__ == '__main__':
     cv2.imshow("warped image", warped_img)
 
     # using Histogram
-    hist = cv2.calcHist([warped_img], [0], None, [256], [0, 256])
+    # hist = cv2.calcHist([warped_img], [0], None, [256], [0, 256])
+    #
+    # # plotting histogram
+    # plot.plot(hist)
+    # plot.show()
 
-    # plotting histogram
-    plot.plot(hist)
-    plot.show()
+    # color seperation using HSV
+    hsv = cv2.cvtColor(warped_img, cv2.COLOR_BGR2HSV)
+    lower_white = np.array([0, 0, 183])
+    higher_white = np.array([255, 255, 255])
+    mask = cv2.inRange(hsv, lower_white, higher_white)
+    cv2.imshow('mask', mask)
 
     cv2.waitKey(0)
