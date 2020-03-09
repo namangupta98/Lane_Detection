@@ -56,6 +56,11 @@ def undistortImage(warped):
 
     # Undistorting
     dst = cv2.undistort(warped, mtx, dist, None, newcameramtx)
+
+    # crop the image
+    x, y, w, h = roi
+    dst = dst[y:y + h, x:x + w]
+
     # cv2.imshow('Undistorted Image', dst)
     # cv2.waitKey(0)
     return dst
@@ -77,8 +82,8 @@ if __name__ == '__main__':
 
     # get warped image
     warped_img = warpImage(points)
-    gray = cv2.cvtColor(warped_img, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("warped image", gray)
+    # gray = cv2.cvtColor(warped_img, cv2.COLOR_BGR2GRAY)
+    cv2.imshow("warped image", warped_img)
 
 
     # color seperation using HSV
@@ -88,23 +93,23 @@ if __name__ == '__main__':
     # mask = cv2.inRange(hsv, lower_white, higher_white)
     # cv2.imshow('mask', mask)
 
-    # using Histogram
-    hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
-
     # threshold
-    _, thresh = cv2.threshold(gray,250,255,cv2.THRESH_BINARY)
-    cv2.imshow('lane pixel candidates', thresh)
+    # _, thresh = cv2.threshold(warped_img, 250, 255, cv2.THRESH_BINARY)
+    # cv2.imshow('lane pixel candidates', thresh)
 
-    # plotting histogram
+    # using Histogram
+    # hist = cv2.calcHist([thresh], [0], None, [256], [0, 256])
+    #
+    # # plotting histogram
     # plot.plot(hist)
     # plot.show()
 
     # undistort image
-    # undistort_img = undistortImage(warped_img)
-    #
-    # # denoise image
-    # # denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
-    # # cv2.imshow('Denoised Image', denoise_img)
+    undistort_img = undistortImage(warped_img)
+
+    # denoise image
+    denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
+    cv2.imshow('Denoised Image', denoise_img)
     #
     # # extract edges
     # edges = cv2.Canny(denoise_img, 100, 200)
