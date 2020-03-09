@@ -34,7 +34,7 @@ def warpImage(pts):
     # dst = np.array([[0,0],[199,0],[199,199],[0,199]], dtype="float32")
 
     M = cv2.getPerspectiveTransform(rect, dst)
-    warped = cv2.warpPerspective(frame, M, (maxWidth, maxHeight))
+    warped = cv2.warpPerspective(crop, M, (maxWidth, maxHeight))
     return warped
 
 
@@ -76,26 +76,6 @@ if __name__ == '__main__':
         # read frames
         _, frame = cap.read()
 
-        # call mouse click function
-        points = np.float32([[530, 522], [793, 514], [951, 613], [347, 625]])
-        # points = []
-
-        # for mouse click to get four points
-        if ctr == 400:
-
-            # cv2.namedWindow("frame", 1)
-            # cv2.setMouseCallback("frame", mouse_click)
-            # cv2.imshow('frame', frame)
-            # cv2.waitKey(0)
-
-            # if 0xff == ord('q'):
-            #     break
-
-            # get warped image
-            warped_img = warpImage(points)
-            cv2.imshow("warped image", warped_img)
-            cv2.waitKey(0)
-
         # using Histogram
         # hist = cv2.calcHist([thresh], [0], None, [256], [0, 256])
 
@@ -104,20 +84,41 @@ if __name__ == '__main__':
         # plot.show()
 
         # undistort image
-        # undistort_img = undistortImage(warped_img)
+        undistort_img = undistortImage(frame)
 
         # denoise image
-        # denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
+        denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
         # cv2.imshow('Denoised Image', denoise_img)
+
+        # crop real image
+        crop = denoise_img[350:720, 0:1280]
+        cv2.imshow('ROI', crop)
+
+        # call mouse click function
+        # points = np.float32([[530, 522], [793, 514], [951, 613], [347, 625]])
+        points = np.float32([[470, 115], [864, 119], [1098, 216], [285, 206]])
+        # points = []
+
+        # for mouse click to get four points
+        # if ctr == 5:
+        #
+        #     cv2.namedWindow("frame", 1)
+        #     cv2.setMouseCallback("frame", mouse_click)
+        #     cv2.imshow('frame', crop)
+        #     cv2.waitKey(0)
+        #
+        #     if 0xff == ord('q'):
+        #         break
+
+        # get warped image
+        warped_img = warpImage(points)
+        cv2.imshow("warped image", warped_img)
+        # cv2.waitKey(0)
 
         # extract edges
         # edges = cv2.Canny(denoise_img, 100, 200)
         # cv2.imshow('edges', edges)
         # cv2.waitKey(0)
-
-        # crop real image
-        # crop = image[190:512, 0:1392]
-        # cv2.imshow('ROI', crop)
 
         # threshold
         # gray = cv2.cvtColor(denoise_img, cv2.COLOR_BGR2GRAY)
@@ -132,8 +133,8 @@ if __name__ == '__main__':
         # mask = cv2.inRange(hsv, lower_white, higher_white)
         # cv2.imshow('mask', mask)
 
-        ctr += 1
-        print(ctr)
+        # ctr += 1
+        # print(ctr)
 
         if cv2.waitKey(1) & 0xff == ord('q'):
             break
