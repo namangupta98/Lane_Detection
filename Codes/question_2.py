@@ -1,15 +1,15 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plot
+import copy
 
+video = cv2.VideoCapture("data_2/challenge_video.mp4")
 
 def mouse_click(event, x, y, flag, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         print(x, y)
         points.append([x, y])
 
-
-# function for warping
 def warpImage(den_image, pts):
     # store points
     tl = pts[0]
@@ -37,87 +37,62 @@ def warpImage(den_image, pts):
     warped = cv2.warpPerspective(den_image, M, (maxWidth, maxHeight))
     return warped
 
-
-# function to undistort image
 def undistortImage(warped):
-    # Define Camera Matrix
+    ### Define Camera Matrix
     mtx = np.array([[9.037596e+02, 0.000000e+00, 6.957519e+02],
                     [0.000000e+00, 9.019653e+02, 2.242509e+02],
                     [0, 0, 1]])
 
-    # Define distortion coefficients
+    ### Define distortion coefficients
     dist = np.array([-3.639558e-01, 1.788651e-01, 6.029694e-04, -3.922424e-04, -5.382460e-02])
 
-    # Getting the new optimal camera matrix
-    # img = cv2.imread('image0.jpg')
     h, w = warped.shape[:2]
     newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1,
                                                       (w, h))
 
-    # Undistorting
+    ### Undistorting
     dst = cv2.undistort(warped, mtx, dist, None, newcameramtx)
 
     # crop the image
     x, y, w, h = roi
     dst = dst[y:y + h, x:x + w]
-
-    # cv2.imshow('Undistorted Image', dst)
-    # cv2.waitKey(0)
     return dst
 
+while True:
+    _, frame = video.read()
+    # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    points = np.float32([[550,460],[740, 460],[1280,720],[128, 720]])
+    # points = np.float32([[451, 81], [698, 77], [798, 178], [214, 182]]) # test points taken from image
 
-if __name__ == '__main__':
-    # read image
-    image = cv2.imread("data_1/data/0000000220.png")
-
-    # undistort image
-    undistort_img = undistortImage(image)
-
-    # denoise image
-    denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
-    # cv2.imshow('Denoised Image', denoise_img)
-
-    # threshold
-    # _, thresh = cv2.threshold(warped_img, 250, 255, cv2.THRESH_BINARY)
-    # cv2.imshow('lane pixel candidates', thresh)
-
-    # extract edges
-    # edges = cv2.Canny(denoise_img, 100, 200)
-    # cv2.imshow('edges', edges)
-    # cv2.waitKey(0)
-
-    # crop real image
-    crop = denoise_img[160:372, 0:1281]
-    # cv2.imshow('ROI', crop)
-
-    # call mouse click function
-    # points = np.float32([[485, 309], [808, 304], [1114, 480], [80, 473]])
-    # points = np.float32([[481, 235], [717, 236], [864, 351], [249, 341]])
-    points = np.float32([[451, 81], [698, 77], [798, 178], [214, 182]])
+    ### Mouse click call
     # points = []
-    # cv2.namedWindow("image", 1)
-    # cv2.setMouseCallback("image", mouse_click)
+    # cv2.namedWindow("video", 1)
+    # cv2.setMouseCallback("video", mouse_click)
 
-    # cv2.imshow("image", crop)
-    # if cv2.waitKey(0) & 0xFF == ord('q'):
-    #     cv2.destroyAllWindows()
+    ### warp function call
+    warped_img = warpImage(frame, points)
 
-    # get warped image
-    warped_img = warpImage(crop, points)
-    cv2.imshow("warped image", warped_img)
+    ### undistort the image
+    dst = undistortImage(warped_img)
 
-    # using Histogram
-    # hist = cv2.calcHist([warped_img], [0], None, [256], [0, 256])
-    #
-    # # plotting histogram
-    # plot.plot(hist)
-    # plot.show()
 
-    # color seperation using HSV
-    hsv = cv2.cvtColor(warped_img, cv2.COLOR_BGR2HSV)
+    ### hsv trial
+    hsv = cv2.cvtColor(dst, cv2.COLOR_BGR2HSV)
     lower_white = np.array([0, 0, 183])
     higher_white = np.array([255, 255, 255])
     mask = cv2.inRange(hsv, lower_white, higher_white)
     cv2.imshow('mask', mask)
 
-    cv2.waitKey(0)
+
+    ### Display the output...
+    # cv2.imshow("original_video", gray)
+    # cv2.imshow("video", warped_img)
+    # cv2.imshow("undistorted_video", dst)
+    cv2.imshow('lane_pixel_candidate', mask)
+
+
+
+    if cv2.waitKey(10) & 0xFF == ord('q'):
+        break
+video.release()
+cv2.destroyAllWindows()
