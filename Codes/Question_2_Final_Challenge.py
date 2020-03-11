@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plot
+import matplotlib.pyplot as plt
 
 
 def mouse_click(event, x, y, flag, param):
@@ -35,7 +35,7 @@ def warpImage(pts):
 
     M = cv2.getPerspectiveTransform(rect, dst)
     warped = cv2.warpPerspective(crop, M, (maxWidth, maxHeight))
-    return warped
+    return warped, M, maxWidth, maxHeight
 
 
 # function to undistort image
@@ -68,7 +68,7 @@ def undistortImage(warped):
 
 if __name__ == '__main__':
     # read image
-    cap = cv2.VideoCapture("Codes/data_2/challenge_video.mp4")
+    cap = cv2.VideoCapture("data_2/challenge_video.mp4")
     ctr = 0
 
     while True:
@@ -111,7 +111,7 @@ if __name__ == '__main__':
         #         break
 
         # get warped image
-        warped_img = warpImage(points)
+        warped_img, M, maxWidth, maxHeight = warpImage(points)
         cv2.imshow("warped image", warped_img)
         # cv2.waitKey(0)
 
@@ -144,8 +144,47 @@ if __name__ == '__main__':
         mask = cv2.add(yellow_mask, white_mask)
         cv2.imshow('mask', mask)
 
+        # pixel count
+        pixel_sum_yellow = np.sum(yellow_mask, axis=0)
+        pixel_sum_white = np.sum(white_mask, axis=0)
+
+        # extracting location of pixels
+        pts_yellow = []
+        for i in range(len(pixel_sum_yellow)):
+            if pixel_sum_yellow[i-1] < pixel_sum_yellow[i] < pixel_sum_yellow[i+1]:
+                pts_yellow.append([i, mask.shape[0]])
+                pts_yellow.append([i, 0])
+
+        pts_white = []
+        for i in range(len(pixel_sum_white)):
+            if pixel_sum_white[i-1] < pixel_sum_white[i] < pixel_sum_white[i+1]:
+                pts_white.append([i, mask.shape[0]])
+                pts_white.append([i, 0])
+
+        # plot histogram
+        # plt.plot(pixel_sum)
+        # plt.xlabel('Image Cols')
+        # plt.ylabel('Sum of Pixels')
+        # plt.show()
+
+        # line on the image
+        pts_yellow = np.array(pts_yellow)
+        pts_yellow = pts_yellow.reshape((-1, 1, 2))
+        warped_img = cv2.polylines(warped_img, [pts_yellow], True, (0, 0, 255))
+
+        pts_white = np.array(pts_white)
+        pts_white = pts_white.reshape((-1, 1, 2))
+        warped_img = cv2.polylines(warped_img, [pts_white], True, (255, 0, 0))
+
+        cv2.imshow('polylines', warped_img)
+
+        # unwarp the image
+        inv_warped = cv2.warpPerspective(warped_img, np.linalg.inv(M), (maxWidth, maxHeight))
+        cv2.imshow('inv_warped', inv_warped)
+
         # ctr += 1
         # print(ctr)
+        # cv2.waitKey(0)
 
         if cv2.waitKey(1) & 0xff == ord('q'):
             break
