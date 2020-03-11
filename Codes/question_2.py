@@ -3,12 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plot
 import copy
 
-video = cv2.VideoCapture("data_2/challenge_video.mp4")
-
+video = cv2.VideoCapture("out.avi")
+# video = cv2.VideoCapture("data_2/challenge_video.mp4")
 def mouse_click(event, x, y, flag, param):
     if event == cv2.EVENT_LBUTTONDOWN:
         print(x, y)
-        points.append([x, y])
+        # points.append([x, y])
 
 def warpImage(den_image, pts):
     # store points
@@ -86,48 +86,73 @@ def undistortImage(warped):
     return dst
 
 def hsv(image):
-    hsv = cv2.cvtColor(dst, cv2.COLOR_BGR2HSV)
+    global white_mask
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     lower_white = np.array([0, 0, 183])
     higher_white = np.array([255, 255, 255])
-    mask = cv2.inRange(hsv, lower_white, higher_white)
-    return mask
+    white_mask = cv2.inRange(hsv, lower_white, higher_white)
+    return white_mask
 
+def curve_fit(image):
+    # pixel_sum_yellow = np.sum(yellow_mask, axis=0)
+    pixel_sum_white = np.sum(white_mask, axis=0)
+    pts_white = []
+    for i in range(len(pixel_sum_white)):
+        if pixel_sum_white[i]:
+            for j in range(white_mask.shape[0]):
+                pts_white.append([i, j])
 
+    pts_white = np.array(pts_white)
+    pts_white = pts_white.reshape((-1, 1, 2))
+    fit_line = cv2.polylines(frame, [pts_white], True, (255, 0, 0))
 
-while True:
-    _, frame = video.read()
-    # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    points = np.float32([[550,460],[740, 460],[1280,720],[128, 720]])
-    # points = np.float32([[451, 81], [698, 77], [798, 178], [214, 182]]) # test points taken from image
+    return fit_line
 
+if __name__ == '__main__':
     ### Mouse click call
-    # points = []
-    # cv2.namedWindow("video", 1)
-    # cv2.setMouseCallback("video", mouse_click)
-
-    ### warp function call
-    warped_img = warpImage(frame, points)
-
-    ### inverse warp function call
-    inv_warped_img = invWarpImage(warped_img, points)
-
-    ### undistort the image
-    dst = undistortImage(inv_warped_img)
-
-    ### hsv trial
-    processed_image = hsv(dst)
+    # image = cv2.imread("img.png")
+    # # points = []
+    # cv2.namedWindow("image", 1)
+    # cv2.setMouseCallback("image", mouse_click)
+    # cv2.imshow("image", image)
+    # cv2.waitKey()
+    while True:
+        _, frame = video.read()
+        # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # points = np.float32([[550,460],[740, 460],[1280,720],[128, 720]])
+        # points = np.float32([[451, 81], [698, 77], [798, 178], [214, 182]]) # test points taken from image
+        points = np.float32([[442, 281], [730, 281], [954, 498], [2, 377]])  # test points taken from image
+        # points = np.float32([[435, 281], [780, 273], [961, 464], [12, 360]])
 
 
-    ### Display the output...
-    # cv2.imshow("original_video", gray)
-    # cv2.imshow("video", warped_img)
-    # cv2.imshow("inverse_video", inv_warped_img)
-    # cv2.imshow("undistorted_video", dst)
-    cv2.imshow('lane_pixel_candidate', processed_image)
+        ### warp function call
+        warped_img = warpImage(frame, points)
+        mask = hsv(warped_img)
+
+
+        ### undistort the image
+        dst = undistortImage(warped_img)
+
+
+        ### inverse warp function call
+        inv_warped_img = invWarpImage(mask, points)
+
+        ### hsv trial
+
+        fit_line = curve_fit(inv_warped_img)
+
+
+        ### Display the output...
+        # cv2.imshow("original_video", gray)
+        # cv2.imshow("video", warped_img)
+        # cv2.imshow("inverse_video", inv_warped_img)
+        # cv2.imshow("undistorted_video", dst)
+        cv2.imshow("masking", mask)
+        # cv2.imshow('lane_pixel_candidate', fit_line)
 
 
 
-    if cv2.waitKey(10) & 0xFF == ord('q'):
-        break
+        if cv2.waitKey(10) & 0xFF == ord('q'):
+            break
 video.release()
 cv2.destroyAllWindows()
