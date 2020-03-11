@@ -178,33 +178,18 @@ if __name__ == '__main__':
         pixel_sum_yellow = np.sum(yellow_mask, axis=0)
         pixel_sum_white = np.sum(white_mask, axis=0)
 
-        # plotting curve
-        # gray = cv2.cvtColor(yellow_mask, cv2.COLOR_RGB2GRAY)
-        # (contours, _) = cv2.findContours(gray, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        # # biggest area
-        # target = max(contours, key=lambda x: cv2.contourArea(x))
-        # cv2.drawContours(warped_img, [target], -1, [0, 0, 255], -1)  # debug
-        # # just example of fitting
-        # x = target[:, :, 0].flatten()
-        # y = target[:, :, 1].flatten()
-        # poly = np.poly1d(np.polyfit(x, y, 5))
-        # for _x in range(min(x), max(x), 5):  # too lazy for line/curve :)
-        #     cv2.circle(warped_img, (_x, int(poly(_x))), 3, [0, 255, 0])
+        # extracting location of pixels
+        pts_yellow = []
+        for i in range(len(pixel_sum_yellow)):
+            if pixel_sum_yellow[i]:
+                for j in range(yellow_mask.shape[0]):
+                    pts_yellow.append([i, j])
 
-        cv2.imshow('warped', warped_img)
-
-        # # extracting location of pixels
-        # pts_yellow = []
-        # for i in range(len(pixel_sum_yellow)):
-        #     if pixel_sum_yellow[i]:
-        #         for j in range(yellow_mask.shape[0]):
-        #             pts_yellow.append([i, j])
-        #
-        # pts_white = []
-        # for i in range(len(pixel_sum_white)):
-        #     if pixel_sum_white[i]:
-        #         for j in range(white_mask.shape[0]):
-        #             pts_white.append([i, j])
+        pts_white = []
+        for i in range(len(pixel_sum_white)):
+            if pixel_sum_white[i]:
+                for j in range(white_mask.shape[0]):
+                    pts_white.append([i, j])
 
         # plot histogram
         # plt.plot(pixel_sum)
@@ -212,24 +197,30 @@ if __name__ == '__main__':
         # plt.ylabel('Sum of Pixels')
         # plt.show()
 
+        # curve on the image
+        curve_coeff = np.polyfit(pts_yellow[1], pts_yellow[0], 2)
+        y_yellow = np.poly1d(curve_coeff)
+        plt.plot(np.arange(yellow_mask.shape[1]), y_yellow(np.arange(yellow_mask.shape[1])))
+        plt.show()
+
         # line on the image
-        # pts_yellow = np.array(pts_yellow)
-        # pts_yellow = pts_yellow.reshape((-1, 1, 2))
-        # warped_img = cv2.polylines(warped_img, [pts_yellow], False, (0, 0, 255))
-        # # for i in range(len(pts_yellow)):
-        # #     pt = pts_yellow[i]
-        # #     cv2.circle(warped_img, tuple(pt), 1, [0, 0, 255])
-        #
-        # pts_white = np.array(pts_white)
-        # pts_white = pts_white.reshape((-1, 1, 2))
-        # warped_img = cv2.polylines(warped_img, [pts_white], False, (255, 0, 0))
-        # # for i in range(len(pts_white)):
-        # #     pt = pts_white[i]
-        # #     cv2.circle(warped_img, tuple(pt), 1, [255, 0, 0])
-        #
-        # cv2.imshow('polylines', warped_img)
-        #
-        # # unwarp the image
+        pts_yellow = np.array(pts_yellow)
+        pts_yellow = pts_yellow.reshape((-1, 1, 2))
+        warped_img = cv2.polylines(warped_img, [pts_yellow], False, (0, 0, 255))
+        # for i in range(len(pts_yellow)):
+        #     pt = pts_yellow[i]
+        #     cv2.circle(warped_img, tuple(pt), 1, [0, 0, 255])
+
+        pts_white = np.array(pts_white)
+        pts_white = pts_white.reshape((-1, 1, 2))
+        warped_img = cv2.polylines(warped_img, [pts_white], False, (255, 0, 0))
+        # for i in range(len(pts_white)):
+        #     pt = pts_white[i]
+        #     cv2.circle(warped_img, tuple(pt), 1, [255, 0, 0])
+
+        cv2.imshow('Homography', warped_img)
+
+        # unwarp the image
         # inv_warped_image = invWarpImage(warped_img, points)
         # # inv_warped_image = cv2.add(crop, inv_warped_image)
         # inv_warped_gray = cv2.cvtColor(inv_warped_image, cv2.COLOR_BGR2GRAY)
