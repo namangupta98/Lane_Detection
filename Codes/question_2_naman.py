@@ -68,65 +68,72 @@ def undistortImage(warped):
 
 if __name__ == '__main__':
     # read image
-    image = cv2.imread("data_1/data/0000000220.png")
+    cap = cv2.VideoCapture("data_1/out.avi")
 
-    # undistort image
-    undistort_img = undistortImage(image)
+    while True:
 
-    # denoise image
-    denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
-    # cv2.imshow('Denoised Image', denoise_img)
+        _, frame = cap.read()
 
-    # threshold
-    # _, thresh = cv2.threshold(warped_img, 250, 255, cv2.THRESH_BINARY)
-    # cv2.imshow('lane pixel candidates', thresh)
+        # undistort image
+        undistort_img = undistortImage(frame)
 
-    # extract edges
-    # edges = cv2.Canny(denoise_img, 100, 200)
-    # cv2.imshow('edges', edges)
-    # cv2.waitKey(0)
+        # denoise image
+        denoise_img = cv2.fastNlMeansDenoisingColored(undistort_img, None, 10, 10, 7, 21)
+        # cv2.imshow('Denoised Image', denoise_img)
 
-    # crop real image
-    crop = denoise_img[160:372, 0:1281]
-    # cv2.imshow('ROI', crop)
+        # threshold
+        # _, thresh = cv2.threshold(warped_img, 250, 255, cv2.THRESH_BINARY)
+        # cv2.imshow('lane pixel candidates', thresh)
 
-    # call mouse click function
-    # points = np.float32([[485, 309], [808, 304], [1114, 480], [80, 473]])
-    # points = np.float32([[481, 235], [717, 236], [864, 351], [249, 341]])
-    points = np.float32([[451, 81], [698, 77], [798, 178], [214, 182]])
-    # points = []
-    # cv2.namedWindow("image", 1)
-    # cv2.setMouseCallback("image", mouse_click)
+        # extract edges
+        # edges = cv2.Canny(denoise_img, 100, 200)
+        # cv2.imshow('edges', edges)
+        # cv2.waitKey(0)
 
-    # cv2.imshow("image", crop)
-    # if cv2.waitKey(0) & 0xFF == ord('q'):
-    #     cv2.destroyAllWindows()
+        # crop real image
+        crop = denoise_img[160:372, 0:1281]
+        # cv2.imshow('ROI', crop)
 
-    # get warped image
-    warped_img = warpImage(crop, points)
-    cv2.imshow("warped image", warped_img)
+        # call mouse click function
+        # points = np.float32([[485, 309], [808, 304], [1114, 480], [80, 473]])
+        # points = np.float32([[481, 235], [717, 236], [864, 351], [249, 341]])
+        points = np.float32([[451, 81], [698, 77], [798, 178], [214, 182]])
+        # points = []
+        # cv2.namedWindow("image", 1)
+        # cv2.setMouseCallback("image", mouse_click)
 
-    # using Histogram
-    # hist = cv2.calcHist([warped_img], [0], None, [256], [0, 256])
+        # cv2.imshow("image", crop)
+        # if cv2.waitKey(0) & 0xFF == ord('q'):
+        #     cv2.destroyAllWindows()
 
-    # plotting histogram
-    # plot.plot(hist)
-    # plot.show()
+        # get warped image
+        warped_img = warpImage(crop, points)
+        cv2.imshow("warped image", warped_img)
 
-    # color separation using HSV
-    hsv = cv2.cvtColor(warped_img, cv2.COLOR_BGR2HSV)
-    lower_white = np.array([0, 0, 183])
-    higher_white = np.array([255, 255, 255])
-    mask = cv2.inRange(hsv, lower_white, higher_white)
-    cv2.imshow('mask', mask)
+        # using Histogram
+        # hist = cv2.calcHist([warped_img], [0], None, [256], [0, 256])
 
-    # pixel count
-    pixel_sum = np.sum(mask, axis=0)
+        # plotting histogram
+        # plot.plot(hist)
+        # plot.show()
 
-    # plot histogram
-    plt.plot(pixel_sum)
-    plt.xlabel('Image Cols')
-    plt.ylabel('Sum of Pixels')
-    plt.show()
+        # color separation using HSV
+        hsv = cv2.cvtColor(warped_img, cv2.COLOR_BGR2HSV)
+        lower_white = np.array([0, 0, 183])
+        higher_white = np.array([255, 255, 255])
+        mask = cv2.inRange(hsv, lower_white, higher_white)
+        cv2.imshow('mask', mask)
 
-    cv2.waitKey(0)
+        # pixel count
+        pixel_sum = np.sum(mask, axis=0)
+
+        # plot histogram
+        # plt.plot(pixel_sum)
+        # plt.xlabel('Image Cols')
+        # plt.ylabel('Sum of Pixels')
+        # plt.show()
+        if cv2.waitKey(1) & 0xff == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
