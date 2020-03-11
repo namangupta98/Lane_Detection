@@ -185,6 +185,8 @@ if __name__ == '__main__':
                 for j in range(yellow_mask.shape[0]):
                     pts_yellow.append([i, j])
 
+        pts_yellow = np.array(pts_yellow)
+
         pts_white = []
         for i in range(len(pixel_sum_white)):
             if pixel_sum_white[i]:
@@ -198,10 +200,11 @@ if __name__ == '__main__':
         # plt.show()
 
         # curve on the image
-        curve_coeff = np.polyfit(pts_yellow[1], pts_yellow[0], 2)
+        curve_coeff = np.polyfit(pts_yellow[:, 0], pts_yellow[:, 1], 2)
         y_yellow = np.poly1d(curve_coeff)
-        plt.plot(np.arange(yellow_mask.shape[1]), y_yellow(np.arange(yellow_mask.shape[1])))
-        plt.show()
+        y_new = [y_yellow(pts_yellow[:, 0])]
+        y_new = np.array(y_new)
+        y_new = y_new.reshape((y_new.shape[1], 1))
 
         # line on the image
         pts_yellow = np.array(pts_yellow)
@@ -221,14 +224,14 @@ if __name__ == '__main__':
         cv2.imshow('Homography', warped_img)
 
         # unwarp the image
-        # inv_warped_image = invWarpImage(warped_img, points)
-        # # inv_warped_image = cv2.add(crop, inv_warped_image)
-        # inv_warped_gray = cv2.cvtColor(inv_warped_image, cv2.COLOR_BGR2GRAY)
-        # _, inv_warped_thresh = cv2.threshold(inv_warped_gray, 0, 250, cv2.THRESH_BINARY_INV)
-        # fram_bit = cv2.bitwise_and(crop, crop, mask=inv_warped_thresh)
-        # # lena_warp = cv2.warpPerspective(lena_img, new_homo, (frame.shape[1], frame.shape[0]))
-        # new_frame = cv2.add(fram_bit, inv_warped_image)
-        # cv2.imshow('warped', new_frame)
+        inv_warped_image = invWarpImage(warped_img, points)
+        # inv_warped_image = cv2.add(crop, inv_warped_image)
+        inv_warped_gray = cv2.cvtColor(inv_warped_image, cv2.COLOR_BGR2GRAY)
+        _, inv_warped_thresh = cv2.threshold(inv_warped_gray, 0, 250, cv2.THRESH_BINARY_INV)
+        fram_bit = cv2.bitwise_and(crop, crop, mask=inv_warped_thresh)
+        # lena_warp = cv2.warpPerspective(lena_img, new_homo, (frame.shape[1], frame.shape[0]))
+        new_frame = cv2.add(fram_bit, inv_warped_image)
+        cv2.imshow('warped', new_frame)
 
         # ctr += 1
         # print(ctr)
