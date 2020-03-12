@@ -99,6 +99,7 @@ if __name__ == '__main__':
     # read image
     cap = cv2.VideoCapture("data_2/challenge_video.mp4")
     ctr = 0
+    temp_yellow_loc = 0
 
     while True:
 
@@ -180,20 +181,31 @@ if __name__ == '__main__':
 
         # extracting location of pixels
         pts_yellow = []
+        yellow_loc = []
         for i in range(len(pixel_sum_yellow)):
-            if pixel_sum_yellow[i]:
+            if pixel_sum_yellow[i] and pixel_sum_yellow[i-1] < pixel_sum_yellow[i] < pixel_sum_yellow[i+1]:
+                yellow_loc.append(i)
                 for j in range(yellow_mask.shape[0]):
-                    pts_yellow.append([i, j])
+                    pts_yellow.append([i, yellow_mask.shape[0]])
+                    pts_yellow.append([i, 0])
 
-        pts_yellow = np.array(pts_yellow)
+        # pts_yellow = np.array(pts_yellow)
+        yellow_loc = np.array(yellow_loc)
 
         pts_white = []
+        white_loc = []
         for i in range(len(pixel_sum_white)):
-            if pixel_sum_white[i]:
-                for j in range(white_mask.shape[0]):
-                    pts_white.append([i, j])
+            white_loc.append(i)
+            try:
+                if pixel_sum_white[i] and pixel_sum_white[i-1] < pixel_sum_white[i] < pixel_sum_white[i+1]:
+                    # for j in range(white_mask.shape[0]):
+                    pts_white.append([i, white_mask.shape[0]])
+                    pts_white.append([i, 0])
+            except:
+                pass
 
-        pts_yellow = np.array(pts_yellow)
+        white_loc = np.array(white_loc)
+        # pts_white = np.array(pts_white)
 
         # plot histogram
         # plt.plot(pixel_sum)
@@ -215,32 +227,44 @@ if __name__ == '__main__':
         # line on the image
         pts_yellow = np.array(pts_yellow)
         pts_yellow = pts_yellow.reshape((-1, 1, 2))
-        warped_img = cv2.polylines(warped_img, [pts_yellow], False, (0, 0, 255))
+        warped_img = cv2.polylines(warped_img, [pts_yellow], True, (0, 0, 255))
         # for i in range(len(pts_yellow)):
         #     pt = pts_yellow[i]
         #     cv2.circle(warped_img, tuple(pt), 1, [0, 0, 255])
 
         pts_white = np.array(pts_white)
         pts_white = pts_white.reshape((-1, 1, 2))
-        warped_img = cv2.polylines(warped_img, [pts_white], False, (255, 0, 0))
+        warped_img = cv2.polylines(warped_img, [pts_white], True, (255, 0, 0))
         # for i in range(len(pts_white)):
         #     pt = pts_white[i]
         #     cv2.circle(warped_img, tuple(pt), 1, [255, 0, 0])
 
-        cv2.imshow('Homography', warped_img)
+        # cv2.imshow('Homography', warped_img)
 
         # unwarp the image
         inv_warped_image = invWarpImage(warped_img, points)
-        # inv_warped_image = cv2.add(crop, inv_warped_image)
         inv_warped_gray = cv2.cvtColor(inv_warped_image, cv2.COLOR_BGR2GRAY)
         _, inv_warped_thresh = cv2.threshold(inv_warped_gray, 0, 250, cv2.THRESH_BINARY_INV)
         fram_bit = cv2.bitwise_and(crop, crop, mask=inv_warped_thresh)
         # lena_warp = cv2.warpPerspective(lena_img, new_homo, (frame.shape[1], frame.shape[0]))
         new_frame = cv2.add(fram_bit, inv_warped_image)
-        cv2.imshow('warped', new_frame)
+        # cv2.imshow('new frame', new_frame)
 
-        # predict lines
-        
+        # predict lanes
+        yellow_point = np.median(yellow_loc)
+        deviation = yellow_point - temp_yellow_loc
+        if deviation > 0:
+            new_frame = cv2.putText(new_frame, 'Right', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        elif deviation < 0:
+            new_frame = cv2.putText(new_frame, 'Left', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        else:
+            new_frame = cv2.putText(new_frame, 'Straight', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        temp_yellow_loc = yellow_point
+        cv2.imshow('new frame', new_frame)
+        # yellow_slope = (yellow_mask.shape[1] - 0)/(np.median(yellow_loc) - np.min(yellow_loc))
+        # white_slope = (white_mask.shape[1] - 0)/(np.median(white_loc) - np.min(white_loc))
+        # print('white slope', white_slope)
+        # print('yellow slope', yellow_slope)
 
         # ctr += 1
         # print(ctr)
