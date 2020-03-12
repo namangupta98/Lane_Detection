@@ -14,17 +14,17 @@ This project - a software written in python and opencv library helps in lane det
 - Matplotlib
 ### Running from zip - 
 
-- Download zip folder lane_detection.zip
-- Exract the zip folder
-
-- Open command prompt
 - Open terminal in the same folder and type the following for question_1
 ```
-cd (directory where zip is extracted)
-cd group15_proj_2.zip
+git clone https://github.com/Pruthvi-Sanghavi/Lane_Detection.git
+cd Lane_Detection
+cd Codes
+```
+- Type the following for video enhancement result
+```
 python3 Q1_histo.py 
 ```
-- Type the following for lane_detection and prediction for data 1
+- Type the following for lane_detection and prediction data 1
 ```
 python3 question_2_naman.py
 ```
@@ -35,4 +35,4 @@ python3 Question_2_Final_Challenge.py
 
 ## Results
 
-https://drive.google.com/drive/folders/1bBNtIiOcpX6tTNRHlQWdCpyqdHL5I4ft
+https://drive.google.com/drive/folders/14he1q5mJtwVrM9toGu5lVNH6lYgcHDK7?usp=sharing
