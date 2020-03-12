@@ -193,6 +193,8 @@ if __name__ == '__main__':
                 for j in range(white_mask.shape[0]):
                     pts_white.append([i, j])
 
+        pts_yellow = np.array(pts_yellow)
+
         # plot histogram
         # plt.plot(pixel_sum)
         # plt.xlabel('Image Cols')
@@ -200,11 +202,15 @@ if __name__ == '__main__':
         # plt.show()
 
         # curve on the image
-        curve_coeff = np.polyfit(pts_yellow[:, 0], pts_yellow[:, 1], 2)
-        y_yellow = np.poly1d(curve_coeff)
-        y_new = [y_yellow(pts_yellow[:, 0])]
-        y_new = np.array(y_new)
-        y_new = y_new.reshape((y_new.shape[1], 1))
+        # curve_coeff = np.polyfit(pts_yellow[:, 0], pts_yellow[:, 1], 2)
+        # y_yellow = np.poly1d(curve_coeff)
+        # y_new = [y_yellow(pts_yellow[:, 0])]
+        # # y_new = np.array(y_new)
+        # # y_new = y_new.reshape((y_new.shape[1], 1))
+        #
+        # pts_yellow = np.array([pts_yellow[:, 0], y_new])
+        # pts_yellow = pts_yellow.reshape((-1, 1, 2))
+        # warped_img = cv2.polylines(warped_img, [pts_yellow], False, (0, 0, 255))
 
         # line on the image
         pts_yellow = np.array(pts_yellow)
@@ -232,6 +238,9 @@ if __name__ == '__main__':
         # lena_warp = cv2.warpPerspective(lena_img, new_homo, (frame.shape[1], frame.shape[0]))
         new_frame = cv2.add(fram_bit, inv_warped_image)
         cv2.imshow('warped', new_frame)
+
+        # predict lines
+        
 
         # ctr += 1
         # print(ctr)
