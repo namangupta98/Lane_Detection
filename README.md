@@ -28,6 +28,10 @@ python3 Q1_histo.py
 ```
 python3 question_2_naman.py
 ```
+- Type the following for lane_detection and prediction for data 2
+```
+python3 Question_2_Final_Challenge.py
+```
 
 ## Results
 
