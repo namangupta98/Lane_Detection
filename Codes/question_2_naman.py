@@ -168,7 +168,7 @@ if __name__ == '__main__':
 
         pts_white = []
         for i in range(len(pixel_sum)):
-            if pixel_sum[i]:
+            if pixel_sum[i] and pixel_sum[i-1] < pixel_sum[i] < pixel_sum[i+1]:
                 for j in range(mask.shape[0]):
                     pts_white.append([i, j])
 
@@ -187,6 +187,8 @@ if __name__ == '__main__':
         # lena_warp = cv2.warpPerspective(lena_img, new_homo, (frame.shape[1], frame.shape[0]))
         new_frame = cv2.add(fram_bit, inv_warped_image)
         cv2.imshow('warped', new_frame)
+
+        #
 
         # ctr += 1
         # print(ctr)
