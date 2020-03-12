@@ -21,7 +21,7 @@ import numpy as np
 def EqualizeHistogram(frame):
     new_img = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
     H,S,V = cv2.split(new_img)
-    clahe= cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    clahe= cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
     new_img_H = clahe.apply(H)
     new_img_S = clahe.apply(S)
     new_img_V = clahe.apply(V)
