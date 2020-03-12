@@ -97,7 +97,7 @@ def invWarpImage(den_image, pts):
 
 if __name__ == '__main__':
     # read image
-    cap = cv2.VideoCapture("data_2/challenge_video.mp4")
+    cap = cv2.VideoCapture("Codes/data_2/challenge_video.mp4")
     ctr = 0
     temp_yellow_loc = 0
 
@@ -257,7 +257,7 @@ if __name__ == '__main__':
             pass
 
         deviation = yellow_point - temp_yellow_loc
-        print(deviation)
+        # print(deviation)
         if deviation > 0:
             new_frame = cv2.putText(new_frame, 'Right', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
         elif deviation < -10:

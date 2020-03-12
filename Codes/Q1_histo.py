@@ -32,7 +32,7 @@ def EqualizeHistogram(frame):
 file='output_histogram4.avi'
 writer = cv2.VideoWriter(file, cv2.VideoWriter_fourcc(*"MJPG"), 30,(1920, 1080))
 
-cap = cv2.VideoCapture('Night Drive - 2689.mp4')
+cap = cv2.VideoCapture('Codes/Night_Drive.mp4')
 
 while(True):
     ret, frame = cap.read()
