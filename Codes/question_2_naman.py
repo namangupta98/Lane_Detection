@@ -99,6 +99,7 @@ if __name__ == '__main__':
     # read image
     cap = cv2.VideoCapture("data_1/out.avi")
     ctr = 0
+    temp_yellow_loc = 0
 
     while True:
 
@@ -141,7 +142,7 @@ if __name__ == '__main__':
 
         # get warped image
         warped_img = warpImage(crop, points)
-        cv2.imshow("warped image", warped_img)
+        # cv2.imshow("warped image", warped_img)
 
         # using Histogram
         # hist = cv2.calcHist([warped_img], [0], None, [256], [0, 256])
@@ -155,7 +156,7 @@ if __name__ == '__main__':
         lower_white = np.array([0, 0, 200])
         higher_white = np.array([255, 255, 255])
         mask = cv2.inRange(hsv, lower_white, higher_white)
-        cv2.imshow('mask', mask)
+        # cv2.imshow('mask', mask)
 
         # # pixel count
         pixel_sum = np.sum(mask, axis=0)
@@ -167,16 +168,23 @@ if __name__ == '__main__':
         # plt.show()
 
         pts_white = []
+        white_loc = []
         for i in range(len(pixel_sum)):
-            if pixel_sum[i] and pixel_sum[i-1] < pixel_sum[i] < pixel_sum[i+1]:
-                for j in range(mask.shape[0]):
-                    pts_white.append([i, j])
+            try:
+                if pixel_sum[i] and pixel_sum[i-1] < pixel_sum[i] < pixel_sum[i+1]:
+                    white_loc.append(i)
+                    for j in range(mask.shape[0]):
+                        pts_white.append([i, j])
+            except:
+                pass
 
         pts_white = np.array(pts_white)
         pts_white = pts_white.reshape((-1, 1, 2))
         warped_img = cv2.polylines(warped_img, [pts_white], False, (255, 0, 0))
 
-        cv2.imshow('lines', warped_img)
+
+
+        # cv2.imshow('lines', warped_img)
 
         # unwarp the image
         inv_warped_image = invWarpImage(warped_img, points)
@@ -186,9 +194,24 @@ if __name__ == '__main__':
         fram_bit = cv2.bitwise_and(crop, crop, mask=inv_warped_thresh)
         # lena_warp = cv2.warpPerspective(lena_img, new_homo, (frame.shape[1], frame.shape[0]))
         new_frame = cv2.add(fram_bit, inv_warped_image)
-        cv2.imshow('warped', new_frame)
+        cv2.imshow('new frame', new_frame)
 
-        #
+        # predict lanes
+        try:
+            yellow_point = np.max(white_loc)
+        except:
+            pass
+
+        deviation = yellow_point - temp_yellow_loc
+        print(deviation)
+        if deviation > 200:
+            new_frame = cv2.putText(new_frame, 'Right', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        elif deviation < 0:
+            new_frame = cv2.putText(new_frame, 'Left', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        else:
+            new_frame = cv2.putText(new_frame, 'Straight', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        temp_yellow_loc = yellow_point
+        cv2.imshow('new frame', new_frame)
 
         # ctr += 1
         # print(ctr)
