@@ -12,7 +12,7 @@ This project - a software written in python and opencv library helps in lane det
 - OpenCV-Python
 - Numpy
 - Matplotlib
-### Running from zip - 
+### Running from github - 
 
 - Open terminal in the same folder and type the following for question_1
 ```
