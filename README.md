@@ -44,7 +44,7 @@ The project has three sections.
   <br><b>Figure 2 - Lane Detection and Prediction for Data-1</b><br>
 </p>  
     
-- Type the following for lane_detection and prediction Data 1
+Type the following for lane_detection and prediction Data 1
 ```
 python3 question_2_naman.py
 ```
@@ -53,7 +53,7 @@ python3 question_2_naman.py
   <br><b>Figure 3 - Lane Detection and Prediction for Data-2</b><br>
 </p>
 
-- Type the following for lane_detection and prediction for Data 2
+Type the following for lane_detection and prediction for Data 2
 ```
 python3 Question_2_Final_Challenge.py
 ```
