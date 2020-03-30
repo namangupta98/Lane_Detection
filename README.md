@@ -30,7 +30,7 @@ The project has three sections.
 <p align="center">
   <img width="400" height="228" src="https://github.com/namangupta98/Lane_Detection/blob/master/Reference%20Images/Q1-input.gif">
   <img width="400" height="228" src="https://github.com/namangupta98/Lane_Detection/blob/master/Reference%20Images/Q1-output.gif">
-  <br><b>Figure 1 - Video Brightness Enhancement using Histogram Equalization</b><br>
+  <br><b>Figure 1 - Video Brightness Enhancement using Histogram Equalization (Left: Original Video, Right: Enhanced Video)</b><br>
 </p>
 
      Run the following command to see the improved contrast of the image.
